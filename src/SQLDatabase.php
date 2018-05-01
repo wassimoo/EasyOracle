@@ -116,7 +116,7 @@ class SQLDatabase
      *  data    - mixed - array of rows on success-true , error info on succes-false
      */
 
-    public function query($sql, $values = array())
+    public function qin($sql, $values = array())
     {
         $statement = oci_parse($this->connection, $sql);
 
@@ -163,7 +163,6 @@ class SQLDatabase
 
     public static function callProcedure($procedure, $values = array())
     {
-
         $sql = '';
 
         $keys = array_keys($values);
