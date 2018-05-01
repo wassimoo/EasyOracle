@@ -41,7 +41,7 @@ Select without parameters:
 
 ```php 
 $sql = 'SELECT * FROM table';
-$result = SQLDatabase::qin($sql); 
+$result = $db->qin($sql); 
 if(!$result['success']) { // operation failed
 	$error = $result['data'];
 } else { // operation succeeded
@@ -58,7 +58,7 @@ $params = Array(
 	':id' => $id,
 	':cat_id' => $cat_id
 );
-$result = SQLDatabase::qin($sql, $params); 
+$result = $db->qin($sql, $params); 
 if(!$result['success']) { // operation failed
 	$error = $result['data'];
 } else { // operation succeeded
@@ -75,7 +75,7 @@ $params = Array(
 	':id' => $id,
 	':cat_id' => $cat_id
 );
-$result = SQLDatabase::qout($sql, $params);
+$result = $db->qout($sql, $params);
 if(!$result['success']) { // operation failed
 	$error = $result['data'];
 } else { // Update/Insert succeeded
@@ -92,7 +92,7 @@ $params = Array(
 	':param3' => $param3,
 	':param4' => $param4,
 );
-$result = SQLDatabase::callCursorFunction($funcName, $params);               
+$result = $db->callCursorFunction($funcName, $params);               
 
 // We must check if operation succeeded
 if(!$result['success']) { // operation failed
@@ -113,7 +113,7 @@ $params = Array(
 	':p_error' => NULL , // OUT parameter for error number
 	':p_error_description' => NULL  // OUT parameter for error description
 );
-$result = SQLDatabase::callProcedure($procName, $params);
+$result = $db->callProcedure($procName, $params);
 if($result['success']) {
 
 	if($params[':p_error'] != NULL) {
