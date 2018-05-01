@@ -116,11 +116,9 @@ class SQLDatabase
      *  data    - mixed - array of rows on success-true , error info on succes-false
      */
 
-    public static function qin($sql, $values = array())
+    public function query($sql, $values = array())
     {
-
-        $database = SQLDatabase::getInstance();
-        $statement = oci_parse($database, $sql);
+        $statement = oci_parse($this->connection, $sql);
 
         foreach ($values as $key => $val) {
             oci_bind_by_name($statement, $key, $val, 512);
@@ -145,8 +143,7 @@ class SQLDatabase
     public static function qout($sql, $values = array())
     {
 
-        $database = SQLDatabase::getInstance();
-        $statement = oci_parse($database, $sql);
+        $statement = oci_parse($this->connection, $sql);
 
         foreach ($values as $key => $val) {
             oci_bind_by_name($statement, $key, $val, 512);
@@ -167,8 +164,6 @@ class SQLDatabase
     public static function callProcedure($procedure, $values = array())
     {
 
-        $database = SQLDatabase::getInstance();
-
         $sql = '';
 
         $keys = array_keys($values);
@@ -179,7 +174,7 @@ class SQLDatabase
             $sql = 'BEGIN ' . $procedure . '; END;';
         }
 
-        $statement = oci_parse($database, $sql);
+        $statement = oci_parse($this->connection, $sql);
 
         foreach ($keys as $key) {
             oci_bind_by_name($statement, $key, $values[$key], 512);
@@ -200,7 +195,6 @@ class SQLDatabase
     public static function callFunction($procedure, $values = array())
     {
 
-        $database = SQLDatabase::getInstance();
 
         $sql = '';
 
@@ -214,7 +208,7 @@ class SQLDatabase
             $sql = 'BEGIN :callFunctionRes := ' . $procedure . '; END;';
         }
 
-        $statement = oci_parse($database, $sql);
+        $statement = oci_parse($this->connection, $sql);
 
         oci_bind_by_name($statement, ':callFunctionRes', $result, 512);
 
@@ -237,13 +231,12 @@ class SQLDatabase
     public static function callCursorFunction($procedure, $values = array())
     {
 
-        $database = SQLDatabase::getInstance();
 
         $sql = '';
 
         $keys = array_keys($values);
 
-        $p_cursor = oci_new_cursor($database);
+        $p_cursor = oci_new_cursor($this->connection);
 
         if (sizeof($values) > 0) {
             $sql = 'BEGIN :callFunctionRes := ' . $procedure . '(' . implode(',', $keys) . '); END;';
@@ -251,7 +244,7 @@ class SQLDatabase
             $sql = 'BEGIN :callFunctionRes := ' . $procedure . '; END;';
         }
 
-        $statement = oci_parse($database, $sql);
+        $statement = oci_parse($this->connection, $sql);
 
         oci_bind_by_name($statement, ':callFunctionRes', $p_cursor, -1, OCI_B_CURSOR);
 
