@@ -3,22 +3,44 @@ PHP-Oracle-SQLDatabase
 
 SQLDatabase class for PHP/Oracle
 
-read usage and implementation at http://ogres.ge/site/php-class-for-oracle-database/
-
-
-
-Features :
+# Features :
 <ul>
-    <li>Single connection to the database ( using Singleton pattern ) .</li>
+	<li>Database connection instance with SYSDBA option</li>
+	<li>Schema switching</li>
 	<li>Dynamic parameter binding ( except BLOB/CLOB ) .</li>
 	<li>Calls Directly PL/SQL Functions/Procedures , supports OUT parameters also .</li>
 </ul>
 
-Usage :
-You must set up connection with your user/password in getInstance method , or define() them
-<pre>SQLDatabase::$instance = @oci_connect(DB_USER, DB_PASS, DB_CONN_STRING,'AL32UTF8');</pre>
+# Usage :
+
+Creating instance:
+* By default a localhost connection is established on default port.
+```php
+	$db = new SQLDatabase(); 
+```
+
+* To specify host and other parameters:
+```php
+	$db = new SQLDatabase($host, $port, $charset);
+```
+
+Establishing connection:
+
+* Connection method is defined as follow
+```php
+	connect($username, $password, $isSysdba = false, $schema = null)
+```
+
+ * Switching Schema:
+ ```php
+ 	$db->switchSchema("hr")
+ ```
+ NOTE: these methods may return ```DBCException``` on failure.
+
 Select without parameters:
-<pre>$sql = 'SELECT * FROM table';
+
+```php 
+$sql = 'SELECT * FROM table';
 $result = SQLDatabase::qin($sql); 
 if(!$result['success']) { // operation failed
 	$error = $result['data'];
@@ -26,9 +48,11 @@ if(!$result['success']) { // operation failed
 	foreach($result['data'] as $row) {
 		var_dump($row);
 	}
-}</pre>
+}
+```
+
 Select with parameters
-<pre>    
+```php   
 $sql = 'SELECT * FROM table WHERE id = :id AND cat_id = :cat_id';
 $params = Array(
 	':id' => $id,
@@ -41,9 +65,12 @@ if(!$result['success']) { // operation failed
 	foreach($result['data'] as $row) {
 		var_dump($row);
 	}
-}</pre>
+}
+```
+
 Update:
-<pre>$sql = 'UPDATE table SET cat_id = :cat_id WHERE id = :id';
+```php
+$sql = 'UPDATE table SET cat_id = :cat_id WHERE id = :id';
 $params = Array(
 	':id' => $id,
 	':cat_id' => $cat_id
@@ -53,9 +80,12 @@ if(!$result['success']) { // operation failed
 	$error = $result['data'];
 } else { // Update/Insert succeeded
 
-}</pre>
+}
+```
+
 Cursor Function Calling:Cursor Function Calling:
-<pre>$funcName = 'function_name_that_returns_cursor';
+```php
+$funcName = 'function_name_that_returns_cursor';
 $params = Array(
 	':param1' => $param1,
 	':param2' => $param2,
@@ -69,9 +99,12 @@ if(!$result['success']) { // operation failed
 	$error = $result['data'];
 } else { // operation succeeded
 	$cursor_result = $result['data'];
-}</pre>
+}
+```
+
 Procedure Calling:
-<pre>// add_new_user = procedure , that inserts new user , it has out parameters
+```php
+// add_new_user = procedure , that inserts new user , it has out parameters
 $procName = 'add_new_user';
 $params = Array(
 	':p_username' => $username,
@@ -91,4 +124,5 @@ if($result['success']) {
 
 } else {
 	$error = $result['data'];
-}</pre>
+}
+```
