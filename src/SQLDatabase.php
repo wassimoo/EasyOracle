@@ -5,38 +5,107 @@
  *
  * @author sergo.beruashvili
  */
+
+require "DBCException.php";
+
 class SQLDatabase
 {
 
-    //Private constructor for Singleton
-    private function __construct()
-    {
+    private $host;
+    private $port;
+    private $charset;
+    private $schema;
 
+    private $connection;
+
+    /**
+     * Create connection instance.
+     * Specifing no arguments connects you to localhost
+     *
+     * @var string $host
+     * @var int $port
+     * @var string $charset
+     */
+    public function __construct($host = "localhost/XE", $port = 1521, $charset = "AL32UTF8")
+    {
+        $this->host = $host;
+        $this->port = $port;
+        $this->charset = $charset;
+        $this->connection = null;
     }
 
-    // OCI Database Instance
-    private static $instance = false;
-
-    /*
-     * Returns instance of OCI Database , creates if necesary
+    /**
+     * Connect to database using specified username and password
+     * @var string $username
+     * @var string $password
+     * @var bool $isSysdba set to true if user is sysdba
+     * @return bool success
+     * @throws DBCException on failure.
      */
-
-    public static function getInstance()
+    public function connect($username, $password, $isSysdba = false, $schema = null)
     {
+        if ($this->host == "localhost/XE") {
+            $connectionStr = "localhost/XE:" . $this->port;
+        } else {
+            $connectionStr = "( DESCRIPTION= ( ADDRESS_LIST = ( ADDRESS = (PROTOCOL = TCP)(HOST = $this->host )(PORT = $this->port) ) ) ) )";
+        }
 
-        if (SQLDatabase::$instance === false) {
-            try {
-                SQLDatabase::$instance = @oci_connect(DB_USER, DB_PASS, DB_CONN_STRING, 'AL32UTF8');
-            } catch (Exception $e) {
-                die($e->getMessage());
-            }
-            if (!SQLDatabase::$instance) {
-                $e = oci_error();
-                die($e['message']);
+        if (empty($username)) {
+            throw new DBCException("No username has been specified", 10101);
+        }
+        if ($isSysdba) {
+            $conn = oci_connect($username, $password, $connectionStr, $this->charset, OCI_SYSDBA);
+        } else {
+            $conn = oci_connect($username, $password, $connectionStr, $this->charset);
+        }
+
+        if ($conn == false) {
+            throw new DBCException("Can't connect to database. Error returned " . oci_error()["message"], 10102);
+        }
+
+        $this->connection = $conn;
+
+        if (!empty($schema)) {
+            try{
+                $this->switchSchema($schema);
+            }catch(DBCException $e){
+                $this->connection = null;
+                $msg = "connection established succefully but couldn't switch schema.
+                Original error : " . $e->getMessage();
+                throw new DBCException($msg, 10105);
             }
         }
 
-        return SQLDatabase::$instance;
+        return true;
+    }
+
+    /**
+     * Change current Schema.
+     * @var $schemaName
+     * @return bool on success
+     * @throws DBCException
+     */
+    public function switchSchema($schemaName)
+    {
+        if ($this->connection == null) {
+            throw new DBCException("connection not established try callign connect()", 10103);
+        }
+
+        //get current schema;
+        $query = "SELECT SYS_CONTEXT('userenv', 'current_schema' ) FROM dual";
+        $stid = oci_parse($this->connection, $query);
+        if (oci_execute($stid, OCI_NO_AUTO_COMMIT) == false) {
+            throw new DBCException("Couldn't get current schema. Error returned " . oci_error()["message"], 10104);
+        } else if (oci_fetch_row($stid)[0] != strtoupper($schemaName)) {
+            //change schema.
+            $query = "ALTER SESSION SET CURRENT_SCHEMA = " . $schemaName;
+            $stid = oci_parse($this->connection, $query);
+            if (oci_execute($stid, OCI_NO_AUTO_COMMIT) == false) {
+                throw new DBCException("Couldn't switch to schema { $schemaName }. Error returned ". oci_error()["message"], 10105);
+            }
+        }
+        $this->schema = $schemaName;
+        return true;
     }
 
     /*
