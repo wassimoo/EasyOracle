@@ -14,7 +14,7 @@ define("ADMIN_PASS", ""); //TODO : change
 
 require '../src/SQLDatabase.php';
 
-execute();
+executeSimpleSelect();
 
 function connectNormal()
 {
@@ -52,7 +52,7 @@ function connectAndSwitchSchema(){
 }
 
 
-function execute(){
-    $db = connectNormal();
-    var_dump($db->query("SELECT * FROM employees WHERE sal > :sal ", ["sal" => 13000]));
+function executeSimpleSelect(){
+    $db = connectNormal(); //connected to hr 
+    var_dump($db->qin("SELECT * FROM employees WHERE sal > :sal ", ["sal" => 13000]));
 }
