@@ -7,21 +7,21 @@
  */
 
 define("USER", "hr");
-define("PASSWORD", ""); //TODO : change 
+define("PASSWORD", "waelo"); //TODO : change 
 
 define("ADMIN", "SYS");
 define("ADMIN_PASS", ""); //TODO : change
 
 require '../src/SQLDatabase.php';
 
-connectAndSwitchSchema();
+execute();
 
 function connectNormal()
 {
     $db = new SQLDatabase();
     try {
         $db->connect(USER, PASSWORD);
-        var_dump($db);
+        //var_dump($db);
     } catch (DBCException $e) {
         echo $e->getMessage();
     }
@@ -33,7 +33,7 @@ function connectAsAdmin()
     $db = new SQLDatabase();
     try {
         $db->connect(ADMIN, ADMIN_PASS, true);
-        var_dump($db);
+        //var_dump($db);
     } catch (DBCException $e) {
         echo $e->getMessage();
     }
@@ -44,9 +44,15 @@ function connectAndSwitchSchema(){
     $db = connectAsAdmin();
     try{
         $db->switchSchema("hr");
-        var_dump($db);
+        //var_dump($db);
     }catch(DBCException $e){
         echo $e->getMessage();
     }
+    return $db;
+}
 
+
+function execute(){
+    $db = connectNormal();
+    var_dump($db->query("SELECT * FROM employees WHERE sal > :sal ", ["sal" => 13000]));
 }
