@@ -7,9 +7,6 @@
  * @author Wassim Bougarfa
  */
 
-namespace MoviesBox;
-
-
 require "DBCException.php";
 
 
