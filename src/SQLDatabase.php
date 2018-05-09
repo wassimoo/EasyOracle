@@ -4,11 +4,16 @@
  * Description of SQLDatabase
  *
  * @author sergo.beruashvili
+ * @author Wassim Bougarfa
  */
+
+namespace MoviesBox;
+
 
 require "DBCException.php";
 
-class SQLDatabase
+
+class Oracle
 {
 
     private $host;
@@ -121,7 +126,7 @@ class SQLDatabase
         $statement = oci_parse($this->connection, $sql);
 
         foreach ($values as $key => $val) {
-            oci_bind_by_name($statement, $key, $val, 512);
+            oci_bind_by_name($statement, $key, $values[$key], 512);
         }
 
         if (@!oci_execute($statement)) {
@@ -140,13 +145,13 @@ class SQLDatabase
      *
      */
 
-    public static function qout($sql, $values = array())
+    public function qout($sql, $values = array())
     {
 
         $statement = oci_parse($this->connection, $sql);
 
         foreach ($values as $key => $val) {
-            oci_bind_by_name($statement, $key, $val, 512);
+            oci_bind_by_name($statement, $key, $values[$key], 512);
         }
 
         if (@!oci_execute($statement)) {
@@ -161,7 +166,7 @@ class SQLDatabase
      * Call the procedure , return array of success/true , and params filled up with OUT data ( if available )
      */
 
-    public static function callProcedure($procedure, $values = array())
+    public  function callProcedure($procedure, $values = array())
     {
         $sql = '';
 
@@ -191,7 +196,7 @@ class SQLDatabase
      * Call the function and , return arra of success/true , data returned by function and params filled up with OUT data ( if available )
      */
 
-    public static function callFunction($procedure, $values = array())
+    public  function callFunction($procedure, $values = array())
     {
 
 
@@ -263,5 +268,4 @@ class SQLDatabase
 
         return array('success' => true, 'data' => $result, 'params' => $values);
     }
-
 }
