@@ -1,7 +1,7 @@
-PHP-Oracle-SQLDatabase
+PHP-Oracle-Oracle
 ======================
 
-SQLDatabase class for PHP/Oracle
+Oracle class for PHP/Oracle
 
 # Features :
 <ul>
@@ -16,12 +16,12 @@ SQLDatabase class for PHP/Oracle
 Creating instance:
 * By default a localhost connection is established on default port.
 ```php
-	$db = new SQLDatabase(); 
+	$db = new Oracle(); 
 ```
 
 * To specify host and other parameters:
 ```php
-	$db = new SQLDatabase($host, $port, $charset);
+	$db = new Oracle($host, $port, $charset);
 ```
 
 Establishing connection:

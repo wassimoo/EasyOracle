@@ -18,7 +18,7 @@ executeSimpleSelect();
 
 function connectNormal()
 {
-    $db = new SQLDatabase();
+    $db = new Oracle();
     try {
         $db->connect(USER, PASSWORD);
         //var_dump($db);
@@ -30,7 +30,7 @@ function connectNormal()
 
 function connectAsAdmin()
 {
-    $db = new SQLDatabase();
+    $db = new Oracle();
     try {
         $db->connect(ADMIN, ADMIN_PASS, true);
         //var_dump($db);
@@ -54,5 +54,5 @@ function connectAndSwitchSchema(){
 
 function executeSimpleSelect(){
     $db = connectNormal(); //connected to hr 
-    var_dump($db->qin("SELECT * FROM employees WHERE sal > :sal ", ["sal" => 13000]));
+    var_dump($db->qin("SELECT employee_id, salary FROM employees WHERE salary > :sal ", ["sal" => 13000])["data"]);
 }
