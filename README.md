@@ -1,4 +1,4 @@
-PHP-Oracle-Oracle
+EASY ORACLE
 ======================
 
 Oracle class for PHP/Oracle
